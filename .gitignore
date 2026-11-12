@@ -1,0 +1,10 @@
+/target
+**/*.rs.bk
+Cargo.lock.bak
+*.tmp
+
+# Claude Code local config
+.claude/
+
+# Local cargo config (static CRT for portable builds)
+.cargo/

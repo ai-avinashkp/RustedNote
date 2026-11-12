@@ -1,0 +1,58 @@
+[package]
+name = "rustednote"
+version = "0.4.6"
+edition = "2021"
+description = "RustedNote — a cross-platform plain-text notepad built with GPUI"
+authors = ["RustedNote"]
+license-file = "LICENSE"
+
+[package.metadata.wix]
+# Skip the EULA dialog in the installer (no bundled license RTF).
+eula = false
+
+# Ship the executable branded as RustedNote.exe (the crate is `rustednote`).
+[[bin]]
+name = "RustedNote"
+path = "src/main.rs"
+
+[build-dependencies]
+# Embeds the app icon + version metadata into the Windows .exe.
+winresource = "0.1"
+
+[dependencies]
+# --- UI framework (Zed's GPUI, from crates.io) ---
+gpui = "0.2.2"
+
+# --- Text buffer & editing ---
+ropey = "1.6"
+unicode-segmentation = "1"
+
+# --- Persistence (preferences + bookmarks) ---
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+directories = "5"
+
+# --- Files & encoding ---
+encoding_rs = "0.8"
+rfd = "0.15"
+
+# --- Utility ---
+anyhow = "1"
+chrono = { version = "0.4", features = ["serde"] }
+raw-window-handle = "0.6"
+
+# Win32 shim for window drag + maximize/restore (not covered by gpui on Windows),
+# plus per-user registry access for the "Open with" integration.
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = [
+    "winuser", "windef",
+    # Single-instance IPC (src/single_instance.rs): a named pipe used to hand
+    # a file off to an already-running RustedNote instead of opening a second
+    # window for it.
+    "namedpipeapi", "winbase", "fileapi", "handleapi", "errhandlingapi", "winerror", "winnt",
+] }
+winreg = "0.52"
+
+[profile.release]
+lto = true
+opt-level = 3
